@@ -1,4 +1,4 @@
-module.epxorts = {
+module.exports = {
   apiErrorHandler (err, req, res, next) {
     if (err instanceof Error) {
       res.status(err.status || 500).json({

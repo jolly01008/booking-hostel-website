@@ -1,7 +1,9 @@
+if (process.env.NODE !== 'production') {
+  require('dotenv').config()
+}
+
 const express = require('express')
-const session = require('express-session')
 const methodOverride = require('method-override')
-const bcryptjs = require('bcryptjs')
 const passport = require('passport')
 const app = express()
 const PORT = 3001

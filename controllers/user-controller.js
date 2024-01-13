@@ -1,5 +1,7 @@
 const bcrypt = require('bcryptjs')
 const { User } = require('../models')
+const jwt = require('jsonwebtoken')
+const helpers = require('../helpers/auth-helpers')
 
 const userController = {
   signUp: async (req, res, next) => {
@@ -27,6 +29,19 @@ const userController = {
       })
     } catch (err) {
       return next(err)
+    }
+  },
+  signIn: (req, res, next) => {
+    try {
+      const userData = helpers.getUser(req).toJSON()
+      delete userData.password
+      const token = jwt.sign(userData, process.env.JWT_SECRET, { expiresIn: '30d' }) // 簽發 JWT Token(期限30天)
+      res.status(200).json({
+        token,
+        user: userData
+      })
+    } catch (err) {
+      next(err)
     }
   }
 }
