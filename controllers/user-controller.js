@@ -43,6 +43,11 @@ const userController = {
     } catch (err) {
       next(err)
     }
+  },
+  test: (req, res, next) => {
+    res.json({
+      message: 'passport jwt 驗證成功'
+    })
   }
 }
 
