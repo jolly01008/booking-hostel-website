@@ -18,7 +18,7 @@ const userController = {
         name,
         email,
         password: hash,
-        role: 'user',
+        role: 'tenant',
         avatar: 'https://imgur.com/a/RJmY7yQ'
       })
       const userData = newUser.toJSON()

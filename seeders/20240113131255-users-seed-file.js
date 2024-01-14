@@ -1,0 +1,74 @@
+'use strict'
+const bcrypt = require('bcryptjs')
+const { faker } = require('@faker-js/faker')
+module.exports = {
+  up: async (queryInterface, Sequelize) => {
+    const hashedPassword = await bcrypt.hash('12345678', 10)
+    await queryInterface.bulkInsert('Users', [
+      {
+        email: 'user1@example.com',
+        password: hashedPassword,
+        name: 'user1',
+        avatar: 'https://imgur.com/a/RJmY7yQ',
+        introduction: 'I am user1',
+        phone: faker.airline.flightNumber({ length: 10 }),
+        country: 'Taiwan',
+        role: 'tenant',
+        created_at: new Date(),
+        updated_at: new Date()
+      },
+      {
+        email: 'user2@example.com',
+        password: hashedPassword,
+        name: 'user2',
+        avatar: 'https://imgur.com/a/RJmY7yQ',
+        introduction: 'I am user2',
+        phone: faker.airline.flightNumber({ length: 10 }),
+        country: 'Taiwan',
+        role: 'landlord',
+        created_at: new Date(),
+        updated_at: new Date()
+      },
+      {
+        email: faker.internet.email(),
+        password: hashedPassword,
+        name: faker.person.fullName(),
+        avatar: 'https://imgur.com/a/RJmY7yQ',
+        introduction: faker.lorem.words({ min: 8, max: 15 }),
+        phone: faker.airline.flightNumber({ length: 10 }),
+        country: faker.location.country(),
+        role: 'tenant',
+        created_at: new Date(),
+        updated_at: new Date()
+      },
+      {
+        email: faker.internet.email(),
+        password: hashedPassword,
+        name: faker.person.fullName(),
+        avatar: 'https://imgur.com/a/RJmY7yQ',
+        introduction: faker.lorem.words({ min: 8, max: 15 }),
+        phone: faker.airline.flightNumber({ length: 10 }),
+        country: faker.location.country(),
+        role: 'landlord',
+        created_at: new Date(),
+        updated_at: new Date()
+      },
+      {
+        email: faker.internet.email(),
+        password: hashedPassword,
+        name: faker.person.fullName(),
+        avatar: 'https://imgur.com/a/RJmY7yQ',
+        introduction: faker.lorem.words({ min: 8, max: 15 }),
+        phone: faker.airline.flightNumber({ length: 10 }),
+        country: faker.location.country(),
+        role: 'landlord',
+        created_at: new Date(),
+        updated_at: new Date()
+      }
+    ], {})
+  },
+
+  down: async (queryInterface, Sequelize) => {
+    await queryInterface.bulkDelete('Users', {})
+  }
+}
