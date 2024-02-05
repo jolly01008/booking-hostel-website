@@ -25,11 +25,13 @@ module.exports = {
         introduction: 'I am user2',
         phone: faker.airline.flightNumber({ length: 10 }),
         country: 'Taiwan',
-        role: 'landlord',
+        role: 'tenant',
         created_at: new Date(),
         updated_at: new Date()
-      },
-      {
+      }
+    ], {})
+    await queryInterface.bulkInsert('Users',
+      Array.from({ length: 3 }).map(() => ({
         email: faker.internet.email(),
         password: hashedPassword,
         name: faker.person.fullName(),
@@ -40,32 +42,8 @@ module.exports = {
         role: 'tenant',
         created_at: new Date(),
         updated_at: new Date()
-      },
-      {
-        email: faker.internet.email(),
-        password: hashedPassword,
-        name: faker.person.fullName(),
-        avatar: 'https://imgur.com/a/RJmY7yQ',
-        introduction: faker.lorem.words({ min: 8, max: 15 }),
-        phone: faker.airline.flightNumber({ length: 10 }),
-        country: faker.location.country(),
-        role: 'landlord',
-        created_at: new Date(),
-        updated_at: new Date()
-      },
-      {
-        email: faker.internet.email(),
-        password: hashedPassword,
-        name: faker.person.fullName(),
-        avatar: 'https://imgur.com/a/RJmY7yQ',
-        introduction: faker.lorem.words({ min: 8, max: 15 }),
-        phone: faker.airline.flightNumber({ length: 10 }),
-        country: faker.location.country(),
-        role: 'landlord',
-        created_at: new Date(),
-        updated_at: new Date()
-      }
-    ], {})
+      }))
+    )
   },
 
   down: async (queryInterface, Sequelize) => {
