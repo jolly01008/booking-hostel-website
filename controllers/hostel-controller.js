@@ -1,11 +1,32 @@
-const express = require('express')
+const { Hostel, Room } = require('../models')
 
 const hostelController = {
-  getHostels: (req, res) => {
-    return res.status(200).json({
-      status: 'success',
-      message: '測試hostelController'
-    })
+  getHostels: async (req, res, next) => {
+    try {
+      const hostels = await Hostel.findAll({
+        attributes: ['name', 'address', 'picture', 'landlordId'],
+        include: [{
+          model: Room,
+          attributes: ['title', 'price']
+        }],
+        order: [[{ model: Room }, 'price', 'ASC']]
+      })
+
+      if (!hostels.length) {
+        return res.status(200).json({
+          status: 'success',
+          message: '目前沒有任何旅館'
+        })
+      }
+
+      const data = hostels.map(hostel => ({
+        ...hostel.toJSON()
+      }))
+
+      return res.status(200).json(data)
+    } catch (err) {
+      next(err)
+    }
   }
 }
 
