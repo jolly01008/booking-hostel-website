@@ -1,5 +1,5 @@
 const bcrypt = require('bcryptjs')
-const { User } = require('../models')
+const { User, Booking } = require('../models')
 const jwt = require('jsonwebtoken')
 const helpers = require('../helpers/auth-helpers')
 
@@ -48,6 +48,28 @@ const userController = {
     res.json({
       message: 'passport jwt 驗證成功'
     })
+  },
+  getUser: async (req, res, next) => {
+    try {
+      const userId = req.params.id
+      const currentUserId = helpers.getUser(req).id.toString()
+      const userData = await User.findByPk(currentUserId, {
+        attributes: { exclude: 'password' }
+      })
+      const bookings = await Booking.findAll({
+        where: { userId: currentUserId }
+      })
+      const pastBookings = bookings.filter(booking => {
+        return new Date(booking.bookingDate) < new Date()
+      })
+
+      if (userId !== currentUserId) { throw new Error('使用者非本人') }
+      if (!currentUserId) { throw new Error('找不到該使用者') }
+
+      return res.status(200).json({ userData, pastBookings })
+    } catch (err) {
+      next(err)
+    }
   }
 }
 

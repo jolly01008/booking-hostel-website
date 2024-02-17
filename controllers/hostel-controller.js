@@ -19,11 +19,7 @@ const hostelController = {
         })
       }
 
-      const data = hostels.map(hostel => ({
-        ...hostel.toJSON()
-      }))
-
-      return res.status(200).json(data)
+      return res.status(200).json(hostels)
     } catch (err) {
       next(err)
     }
