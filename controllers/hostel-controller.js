@@ -4,10 +4,10 @@ const hostelController = {
   getHostels: async (req, res, next) => {
     try {
       const hostels = await Hostel.findAll({
-        attributes: ['name', 'address', 'picture', 'landlordId'],
+        attributes: ['id', 'name', 'address', 'picture', 'landlordId'],
         include: [{
           model: Room,
-          attributes: ['title', 'price']
+          attributes: ['id', 'title', 'price']
         }],
         order: [[{ model: Room }, 'price', 'ASC']]
       })
@@ -18,7 +18,7 @@ const hostelController = {
           message: '目前沒有任何旅館'
         })
       }
-
+      console.log('hostels內容:', hostels)
       return res.status(200).json(hostels)
     } catch (err) {
       next(err)

@@ -9,7 +9,9 @@ const app = express()
 const PORT = process.env.PORT || 3001
 
 const router = require('./routes')
+const cors = require('cors')
 
+app.use(cors())
 app.use(passport.initialize())
 app.use(methodOverride('_method'))
 app.use(express.urlencoded({ extended: true }))
