@@ -3,6 +3,7 @@ if (process.env.NODE !== 'production') {
 }
 
 const express = require('express')
+const path = require('path')
 const methodOverride = require('method-override')
 const passport = require('passport')
 const app = express()
@@ -16,6 +17,7 @@ app.use(passport.initialize())
 app.use(methodOverride('_method'))
 app.use(express.urlencoded({ extended: true }))
 app.use(express.json())
+app.use('/upload', express.static(path.join(__dirname, 'upload')))
 app.use('/api', router)
 
 app.listen(PORT, () => {

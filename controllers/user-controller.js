@@ -1,7 +1,8 @@
 const bcrypt = require('bcryptjs')
-const { User, Booking } = require('../models')
+const { User, Booking, Landlord } = require('../models')
 const jwt = require('jsonwebtoken')
 const helpers = require('../helpers/auth-helpers')
+const { localFileHandler } = require('../helpers/file-helpers')
 
 const userController = {
   signUp: async (req, res, next) => {
@@ -67,6 +68,37 @@ const userController = {
       if (!currentUserId) { throw new Error('找不到該使用者') }
 
       return res.status(200).json({ userData, pastBookings })
+    } catch (err) {
+      next(err)
+    }
+  },
+  postApplyLandlord: async (req, res, next) => {
+    try {
+      const userId = req.params.id
+      const currentUserId = helpers.getUser(req).id.toString()
+      if (userId !== currentUserId) throw new Error('使用者非本人！')
+
+      const currentUser = await User.findByPk(userId)
+      if (!currentUser) throw new Error('使用者不存在')
+      if (currentUser.role === 'landlord') throw new Error('已經申請過房東身分')
+
+      const { name, introduction, phone, country } = req.body
+      const { file } = req // multer在request處理好的file
+      const avatarPath = await localFileHandler(file) // 呼叫localFileHandler取得檔案路徑
+      if (!name || !introduction || !phone || !country) throw new Error('欄位中不能空白，申請失敗')
+      await Landlord.create({
+        name,
+        introduction,
+        phone,
+        country,
+        avatar: avatarPath || null,
+        userId
+      })
+      await currentUser.update({ role: 'landlord' })
+      return res.status(200).json({
+        status: 'success',
+        message: '申請房東成功'
+      })
     } catch (err) {
       next(err)
     }
