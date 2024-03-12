@@ -1,8 +1,13 @@
 const express = require('express')
 const router = express.Router()
 
-const landlordController = require('../../controllers/landlord-controller')
+const { landlordAuth } = require('../../middleware/landlord-auth')
+const upload = require('../../middleware/multer')
 
-router.get('/:id', landlordController.getLandlord)
+const landlordController = require('../../controllers/landlord-controller')
+const hostelController = require('../../controllers/hostel-controller')
+
+router.post('/:landlordId/hostels/create', landlordAuth, upload.single('picture'), hostelController.postHostel)
+router.get('/:landlordId', landlordAuth, landlordController.getLandlord)
 
 module.exports = router
