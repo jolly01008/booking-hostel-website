@@ -45,6 +45,23 @@ const hostelController = {
     } catch (err) {
       next(err)
     }
+  },
+  getLandlordHostels: async (req, res, next) => {
+    try {
+      const { landlordId } = req.params
+      const landlordHostels = await Hostel.findAll({
+        where: { landlordId },
+        attributes: ['name', 'address', 'description', 'picture']
+      })
+
+      if (!landlordHostels) throw new Error('尚未建立任何旅館')
+
+      return res.status(200).json({
+        data: { landlordHostels }
+      })
+    } catch (err) {
+      next(err)
+    }
   }
 }
 
