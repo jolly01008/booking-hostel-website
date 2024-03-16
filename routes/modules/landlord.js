@@ -8,6 +8,7 @@ const landlordController = require('../../controllers/landlord-controller')
 const hostelController = require('../../controllers/hostel-controller')
 const roomController = require('../../controllers/room-controller')
 
+router.get('/:landlordId/hostels/:hostelId/rooms/:roomId', landlordAuth, roomController.getLandlordRoom)
 router.post('/:landlordId/hostels/:hostelId/createRoom', landlordAuth, upload.array('pictures', 6), roomController.postRoom)
 router.get('/:landlordId/hostels/:hostelId/rooms', landlordAuth, roomController.getLandlordRooms)
 router.post('/:landlordId/hostels/create', landlordAuth, upload.single('picture'), hostelController.postHostel)

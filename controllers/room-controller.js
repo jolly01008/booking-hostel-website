@@ -1,4 +1,4 @@
-const { Room, Bed } = require('../models')
+const { Room, Bed, Hostel, Landlord } = require('../models')
 
 const { roomsFileHandler } = require('../helpers/file-helpers')
 
@@ -74,16 +74,56 @@ const roomController = {
   },
   getLandlordRooms: async (req, res, next) => {
     try {
+      const { landlordId } = req.params
       const { hostelId } = req.params
+      const landlordData = await Landlord.findByPk(landlordId, {
+        attributes: ['name', 'avatar', 'introduction']
+      })
+      const HostelData = await Hostel.findByPk(hostelId, {
+        attributes: ['name', 'address', 'description']
+      })
       const allRooms = await Room.findAll({
         where: { hostelId },
-        attributes: ['title', 'type', 'description', 'price', 'facilities', 'pictures']
+        attributes: ['title', 'price', 'pictures']
       })
-
+      if (!landlordData) throw new Error('找不到該房東資訊')
+      if (!HostelData) throw new Error('找不到該旅館')
       if (!allRooms.length) throw new Error('目前沒有任何房間')
 
+      const data = {
+        allRooms,
+        landlordName: landlordData.name,
+        landlordAvatar: landlordData.avatar,
+        landlordIntroduction: landlordData.introduction,
+        HostelName: HostelData.name,
+        HostelAddress: HostelData.address,
+        Hosteldescription: HostelData.description
+      }
+
+      res.status(200).json({data})
+    } catch (err) {
+      next(err)
+    }
+  },
+  getLandlordRoom: async (req, res, next) => {
+    try {
+      const { landlordId } = req.params
+      const { hostelId } = req.params
+      const { roomId } = req.params
+      const room = await Room.findByPk(roomId, {
+        where: { hostelId },
+        attributes: ['title', 'type', 'description', 'price', 'facilities', 'pictures'],
+        include: [{
+          model: Hostel,
+          where: { landlordId, id: hostelId },
+          attributes: ['name', 'address']
+        }]
+      })
+      if (!room) throw new Error('這個房間不存在')
+      if (!room.Hostel) throw new Error('這個旅館不存在')
+
       res.status(200).json({
-        data: allRooms
+        data: room
       })
     } catch (err) {
       next(err)
