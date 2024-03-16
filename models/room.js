@@ -18,7 +18,8 @@ module.exports = (sequelize, DataTypes) => {
     facilities: DataTypes.TEXT,
     pictures: DataTypes.STRING,
     reservationStatus: DataTypes.STRING,
-    hostelId: DataTypes.INTEGER
+    hostelId: DataTypes.INTEGER,
+    headcount: DataTypes.INTEGER
   }, {
     sequelize,
     modelName: 'Room',
