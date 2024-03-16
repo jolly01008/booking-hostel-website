@@ -19,7 +19,9 @@ const hostelController = {
           message: '目前沒有任何旅館'
         })
       }
-      return res.status(200).json(hostels)
+      return res.status(200).json({
+        data: hostels
+      })
     } catch (err) {
       next(err)
     }
@@ -57,7 +59,7 @@ const hostelController = {
       if (!landlordHostels) throw new Error('尚未建立任何旅館')
 
       return res.status(200).json({
-        data: { landlordHostels }
+        data: landlordHostels
       })
     } catch (err) {
       next(err)
