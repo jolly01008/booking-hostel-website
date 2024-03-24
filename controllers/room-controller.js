@@ -100,7 +100,7 @@ const roomController = {
         Hosteldescription: HostelData.description
       }
 
-      res.status(200).json({data})
+      res.status(200).json({ data })
     } catch (err) {
       next(err)
     }
