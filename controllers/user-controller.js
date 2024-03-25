@@ -45,11 +45,6 @@ const userController = {
       next(err)
     }
   },
-  test: (req, res, next) => {
-    res.json({
-      message: 'passport jwt 驗證成功'
-    })
-  },
   getUser: async (req, res, next) => {
     try {
       const userId = req.params.id

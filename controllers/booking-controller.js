@@ -1,4 +1,5 @@
-const { Room, Hostel, Booking } = require('../models')
+const { Room, Hostel, Booking, Landlord } = require('../models')
+const authHelper = require('../helpers/auth-helpers')
 
 const dayjs = require('dayjs')
 const isBetween = require('dayjs/plugin/isBetween')
@@ -122,6 +123,74 @@ const bookingController = {
         searchData: req.query,
         message: `建議床位數至少: ${suggestBeds} 張床`,
         data: uniqueResults
+      })
+    } catch (err) {
+      next(err)
+    }
+  },
+  getBookingRoom: async (req, res, next) => {
+    try {
+      const { checkin, checkout } = req.body // 由前端從localStorage讀資料並傳送到後端
+      const { hostelId, roomId } = req.params
+      const room = await Room.findByPk(roomId, {
+        attributes: ['title', 'type', 'description', 'price', 'headcount']
+      })
+      const hostel = await Hostel.findByPk(hostelId, {
+        attributes: ['name', 'address', 'description'],
+        include: [{
+          model: Landlord,
+          attributes: ['name', 'phone', 'avatar']
+        }]
+      })
+      const daysOfStay = dayjs(checkout).diff(dayjs(checkin), 'day') // 住宿天數
+      const totalPrice = daysOfStay * room.price // 總價是 天數 * 一晚價格
+      const data = {
+        ...room.toJSON(),
+        ...hostel.toJSON(),
+        price: totalPrice
+      }
+
+      return res.status(200).json({
+        status: 'success',
+        data
+      })
+    } catch (err) {
+      next(err)
+    }
+  },
+  postBookingRoom: async (req, res, next) => {
+    try {
+      const currentUserId = authHelper.getUser(req).id
+      const { keyword, checkin, checkout, adults, kids } = req.body // 由前端從localStorage讀資料並傳送到後端
+      const { tenantName, email, phone } = req.body
+      const { roomId } = req.params
+      if (!keyword) throw new Error('想住宿的地點尚未填妥')
+      if (!checkin || !checkout) throw new Error('想住宿的日期尚未填妥')
+      if (!adults || !kids) throw new Error('訂房人數尚未填妥')
+      if (!tenantName || !email || !phone) throw new Error('訂房資料請填寫完整')
+
+      const room = await Room.findByPk(roomId, {
+        attributes: ['id', 'price']
+      })
+      const daysOfStay = dayjs(checkout).diff(dayjs(checkin), 'day') // 住宿天數
+      const totalPrice = daysOfStay * room.price // 總價是 天數 * 一晚價格
+
+      await Booking.create({
+        tenantName,
+        email,
+        phone,
+        keyword,
+        bookingDate: checkin,
+        checkoutDate: checkout,
+        numberOfAdults: adults,
+        numberOfKids: kids,
+        totalPrice,
+        userId: currentUserId,
+        roomId: room.id
+      })
+      return res.status(200).json({
+        status: 'success',
+        message: '預約成功'
       })
     } catch (err) {
       next(err)
