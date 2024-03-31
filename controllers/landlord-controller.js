@@ -1,5 +1,7 @@
 const { Landlord, Hostel, Room, Booking } = require('../models')
 const bookingDateHelper = require('../helpers/bookingDate-helpers')
+const authHelper = require('../helpers/auth-helpers')
+const { localFileHandler } = require('../helpers/file-helpers')
 
 const landlordController = {
   getLandlord: async (req, res, next) => {
@@ -31,6 +33,33 @@ const landlordController = {
         landlordData,
         newBooking,
         pastBooking
+      })
+    } catch (err) {
+      next(err)
+    }
+  },
+  editLandlord: async (req, res, next) => {
+    try {
+      const { name, introduction, phone, country } = req.body
+      const { file } = req
+      const avatarPath = await localFileHandler(file)
+      const landlordData = await Landlord.findByPk(req.params.landlordId, {
+        attributes: ['id', 'name', 'avatar', 'introduction', 'phone', 'country']
+      })
+      if (!name) throw new Error('不能沒有姓名!')
+
+      await landlordData.update({
+        avatar: avatarPath || landlordData.avatar,
+        name: name || landlordData.name,
+        introduction: introduction || landlordData.introduction,
+        phone: phone || landlordData.phone,
+        country: country || landlordData.country
+      },
+      { where: { id: req.params.landlordId } })
+
+      return res.status(200).json({
+        status: 'success',
+        message: '變更成功'
       })
     } catch (err) {
       next(err)

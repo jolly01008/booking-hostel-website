@@ -13,6 +13,7 @@ router.post('/:landlordId/hostels/:hostelId/createRoom', landlordAuth, upload.ar
 router.get('/:landlordId/hostels/:hostelId/rooms', landlordAuth, roomController.getLandlordRooms)
 router.post('/:landlordId/hostels/create', landlordAuth, upload.single('picture'), hostelController.postHostel)
 router.get('/:landlordId/hostels', landlordAuth, hostelController.getLandlordHostels)
+router.put('/:landlordId/editLandlord', landlordAuth, upload.single('avatar'), landlordController.editLandlord)
 router.get('/:landlordId', landlordAuth, landlordController.getLandlord)
 
 module.exports = router
