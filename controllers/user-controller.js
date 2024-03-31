@@ -1,8 +1,9 @@
 const bcrypt = require('bcryptjs')
 const { User, Booking, Landlord } = require('../models')
 const jwt = require('jsonwebtoken')
-const helpers = require('../helpers/auth-helpers')
+const authHelper = require('../helpers/auth-helpers')
 const { localFileHandler } = require('../helpers/file-helpers')
+const bookingDateHelper = require('../helpers/bookingDate-helpers')
 
 const userController = {
   signUp: async (req, res, next) => {
@@ -34,7 +35,7 @@ const userController = {
   },
   signIn: (req, res, next) => {
     try {
-      const userData = helpers.getUser(req).toJSON()
+      const userData = authHelper.getUser(req).toJSON()
       delete userData.password
       const token = jwt.sign(userData, process.env.JWT_SECRET, { expiresIn: '30d' }) // 簽發 JWT Token(期限30天)
       res.status(200).json({
@@ -48,21 +49,62 @@ const userController = {
   getUser: async (req, res, next) => {
     try {
       const userId = req.params.id
-      const currentUserId = helpers.getUser(req).id.toString()
+      const currentUserId = authHelper.getUser(req).id.toString()
       const userData = await User.findByPk(currentUserId, {
         attributes: { exclude: 'password' }
       })
       const bookings = await Booking.findAll({
         where: { userId: currentUserId }
       })
-      const pastBookings = bookings.filter(booking => {
-        return new Date(booking.bookingDate) < new Date()
-      })
+
+      const newBooking = bookingDateHelper.getNewBooking(bookings)
+      const pastBooking = bookingDateHelper.getPastBooking(bookings)
+      // const pastBookings = bookings.filter(booking => {
+      //   return new Date(booking.bookingDate) < new Date()
+      // })
 
       if (userId !== currentUserId) { throw new Error('使用者非本人') }
       if (!currentUserId) { throw new Error('找不到該使用者') }
 
-      return res.status(200).json({ userData, pastBookings })
+      return res.status(200).json({ userData, newBooking, pastBooking })
+    } catch (err) {
+      next(err)
+    }
+  },
+  editUser: async (req, res, next) => {
+    try {
+      const userId = req.params.id
+      const currentUserId = authHelper.getUser(req).id
+      if (Number(userId) !== Number(currentUserId)) throw new Error('使用者非本人')
+      if (!currentUserId) throw new Error('找不到該使用者')
+
+      const { email, name, introduction, phone, country } = req.body
+      const { file } = req
+      const avatarPath = await localFileHandler(file)
+      const beUsedEmail = await User.findOne({
+        where: { email },
+        attributes: ['id']
+      })
+      const userData = await User.findByPk(currentUserId, {
+        attributes: { exclude: 'password' }
+      })
+      if (beUsedEmail && beUsedEmail.id !== currentUserId) throw new Error('這個email已經有人使用，更改失敗')
+      if (!email || !name) throw new Error('不能沒有信箱與姓名!')
+
+      await User.update({
+        avatar: avatarPath || userData.avatar,
+        email: email || userData.email,
+        name: name || userData.name,
+        introduction: introduction || userData.introduction,
+        phone: phone || userData.phone,
+        country: country || userData.country
+      },
+      { where: { id: currentUserId } })
+
+      return res.status(200).json({
+        status: 'success',
+        message: '變更成功'
+      })
     } catch (err) {
       next(err)
     }
@@ -70,7 +112,7 @@ const userController = {
   postApplyLandlord: async (req, res, next) => {
     try {
       const userId = req.params.id
-      const currentUserId = helpers.getUser(req).id.toString()
+      const currentUserId = authHelper.getUser(req).id.toString()
       if (userId !== currentUserId) throw new Error('使用者非本人！')
 
       const currentUser = await User.findByPk(userId)
