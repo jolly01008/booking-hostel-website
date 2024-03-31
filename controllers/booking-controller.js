@@ -20,7 +20,7 @@ const bookingController = {
 
       // 關鍵字搜尋，所有房間==========================
 
-      const keywordResults = await filterHelper.keywordFilter(keyword)
+      const keywordResults = await filterHelper.keywordFilter(keyword, next)
 
       if (keywordResults.length === 0) {
         return res.status(200).json({
@@ -31,7 +31,7 @@ const bookingController = {
 
       // 日期(判斷是否已被預約過)、人數篩選搜尋================================
       const suggestBeds = Number(adults) + Math.floor(Number(kids) / 2) // 建議的床位數量
-      const dateNotAllowResults = await filterHelper.dateFilter(checkin, checkout, adults, kids)
+      const dateNotAllowResults = await filterHelper.dateFilter(checkin, checkout, adults, kids, next)
       // keywordResults"關鍵字搜尋"的結果，要去除掉dateNotAllowResult "日期重疊或床位不足" 的結果
       //  some() 方法的调用，用于检查 dateNotAllowResults 数组中是否至少存在一个元素的 id 属性與 keywordResult 数组中当前元素的 id 属性相同
       //  数组中找不到任何一个元素的 id 属性與當前 keywordResult 数组中的元素的 id 属性相同，那么 ! 反向變成 true，就會保留在results的結果
@@ -99,7 +99,7 @@ const bookingController = {
       if (checkin > checkout || checkin < today || checkout < today) throw new Error('請輸入合理的時間')
       if (!adults > 1) throw new Error('請確實填寫人數，至少須有一位青年或成人')
 
-      const dateNotAllowResults = await filterHelper.dateFilter(checkin, checkout, adults, kids)
+      const dateNotAllowResults = await filterHelper.dateFilter(checkin, checkout, adults, kids, next)
       // 這些輸入的條件，若 dateNotAllowResults 有一筆資料，代表該期間已無可預約的房間
       if (dateNotAllowResults.length > 0) {
         return res.status(200).json({
@@ -154,7 +154,7 @@ const bookingController = {
       // 若登記的房間是混合房，也需存床位、訂單資料到Booked_bed資料表
       // 1.先確定該混合房床位數量還夠 2.Booking表寫進資料 3.Booked_bed表寫進資料
       if (room.type === 'mixed_dorm') {
-        await filterBedsAmount(checkin, checkout, adults, kids, roomId)
+        await filterBedsAmount(checkin, checkout, adults, kids, roomId, next)
         await Booking.create({
           tenantName,
           email,
@@ -167,7 +167,7 @@ const bookingController = {
           userId: currentUserId,
           roomId: room.id
         })
-        await createBed(tenantName, email, phone, checkin, checkout, adults, kids, totalPrice, currentUserId, roomId)
+        await createBed(tenantName, email, phone, checkin, checkout, adults, kids, totalPrice, currentUserId, roomId, next)
       }
 
       return res.status(200).json({
