@@ -1,4 +1,4 @@
-const { Hostel, Room, Landlord } = require('../models')
+const { Hostel, Room } = require('../models')
 const { localFileHandler } = require('../helpers/file-helpers')
 
 const hostelController = {
@@ -64,6 +64,34 @@ const hostelController = {
     } catch (err) {
       next(err)
     }
+  },
+  editHostel: async (req, res, next) => {
+    try {
+      const { landlordId, hostelId } = req.params
+      const { name, address, description } = req.body
+      const { file } = req
+      const picturePath = await localFileHandler(file)
+      if (!name || !address || !description) throw new Error('旅館資訊需要填寫完整')
+
+      const landlordHostels = await Hostel.findAll({ where: { landlordId }, attributes: ['id'] })
+      const editHostel = await Hostel.findByPk(hostelId, { attributes: ['id', 'name', 'address', 'description'] })
+
+      if (!editHostel) throw new Error('沒有這間旅館')
+      if (!landlordHostels.some(landlordHostel => Number(landlordHostel.id) === Number(hostelId))) {
+        throw new Error('你沒有瀏覽、編輯這個旅館的權限')}
+
+      await Hostel.update({
+        picture: picturePath || editHostel.picture,
+        name: name || editHostel.name,
+        address: address || editHostel.address,
+        description: description || editHostel.description
+      }, { where: { id: hostelId } })
+
+      return res.status(200).json({
+        status: 'success',
+        message: '編輯資料成功'
+      })
+    } catch (err) { next(err) }
   }
 }
 
