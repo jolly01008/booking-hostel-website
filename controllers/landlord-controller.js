@@ -1,6 +1,5 @@
 const { Landlord, Hostel, Room, Booking } = require('../models')
 const bookingDateHelper = require('../helpers/bookingDate-helpers')
-const authHelper = require('../helpers/auth-helpers')
 const { localFileHandler } = require('../helpers/file-helpers')
 
 const landlordController = {
