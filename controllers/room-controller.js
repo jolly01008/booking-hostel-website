@@ -218,6 +218,31 @@ const roomController = {
         message: '編輯資料成功'
       })
     } catch (err) { next(err) }
+  },
+  deleteRoom: async (req, res, next) => {
+    try {
+      const { landlordId, hostelId, roomId } = req.params
+      // 先檢查目前的房東是否有瀏覽、編輯該旅館的權限
+      const landlordHostels = await Hostel.findAll({ where: { landlordId }, attributes: ['id'] })
+      const landlordHostel = await Hostel.findByPk(hostelId, { attributes: ['id'] })
+      const allRooms = await Room.findAll({ where: { hostelId }, attributes: ['id', 'title', 'type', 'description', 'price', 'facilities', 'pictures'] })
+      const deleteRoom = await Room.findByPk(roomId, { where: { hostelId } })
+
+      if (!landlordHostel) throw new Error('沒有這間旅館')
+      if (!landlordHostels.some(landlordHostel => Number(landlordHostel.id) === Number(hostelId))) {
+        throw new Error('你沒有瀏覽、編輯這個旅館的權限')
+      }
+      if (!deleteRoom) throw new Error('沒有這個房間')
+      if (!allRooms.some(room => Number(room.id) === Number(roomId))) {
+        throw new Error('你沒有瀏覽、編輯這個房間的權限')
+      }
+      await deleteRoom.destroy()
+
+      res.status(200).json({
+        status: 'success',
+        message: '成功刪除該房源'
+      })
+    } catch (err) { next(err) }
   }
 }
 

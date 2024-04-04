@@ -10,6 +10,7 @@ const roomController = require('../../controllers/room-controller')
 
 router.get('/:landlordId/hostels/:hostelId/rooms/:roomId/edit', landlordAuth, roomController.getEditRoom)
 router.put('/:landlordId/hostels/:hostelId/rooms/:roomId/edit', landlordAuth, upload.array('pictures', 6), roomController.editRoom)
+router.delete('/:landlordId/hostels/:hostelId/rooms/:roomId/delete', landlordAuth, roomController.deleteRoom)
 router.get('/:landlordId/hostels/:hostelId/rooms/:roomId', landlordAuth, roomController.getLandlordRoom)
 router.post('/:landlordId/hostels/:hostelId/createRoom', landlordAuth, upload.array('pictures', 6), roomController.postRoom)
 router.put('/:landlordId/hostels/:hostelId/edit', landlordAuth, upload.single('picture'), hostelController.editHostel)
