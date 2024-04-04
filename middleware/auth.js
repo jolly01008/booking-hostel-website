@@ -1,4 +1,6 @@
 const passport = require('../config/passport')
+const { User } = require('../models')
+const authHelper = require('../helpers/auth-helpers')
 
 const authenticated = (req, res, next) => {
   passport.authenticate('jwt', { session: false }, (err, user) => {
@@ -7,4 +9,15 @@ const authenticated = (req, res, next) => {
   })(req, res, next)
 }
 
-module.exports = { authenticated }
+const tenantAuth = async (req, res, next) => {
+  try {
+    const currentUserId = authHelper.getUser(req).id
+    const currentUserRole = await User.findByPk(currentUserId, { attributes: ['currentRole'] })
+    if (currentUserRole !== 'tenant') throw new Error('若想使用 一般房客頁面、訂房相關功能，請先切換成使用者身分')
+    next()
+  } catch (err) {
+    next(err)
+  }
+}
+
+module.exports = { authenticated, tenantAuth }

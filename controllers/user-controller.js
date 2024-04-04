@@ -139,6 +139,40 @@ const userController = {
     } catch (err) {
       next(err)
     }
+  },
+  switchRole: async (req, res, next) => {
+    try {
+      const currentUserId = authHelper.getUser(req).id
+      const currentUserData = await User.findByPk(currentUserId, {
+        attributes: ['id', 'currentRole'],
+        include: [{
+          model: Landlord,
+          attributes: ['id']
+        }]
+      })
+
+      if (!currentUserData) throw new Error('找不到這個使用者')
+
+      let newRole
+      let data
+      let message
+      if (currentUserData.currentRole === 'landlord') {
+        newRole = 'tenant'
+        message = '切換成一般使用者房客，id為'
+        data = data = currentUserData.id
+      } else if (currentUserData.currentRole === 'tenant') {
+        newRole = 'landlord'
+        message = '切換成房東，id為'
+        data = currentUserData.Landlord.id
+      }
+      await currentUserData.update({ currentRole: newRole })
+
+      res.status(200).json({
+        status: 'success',
+        message,
+        data
+      })
+    } catch (err) { next(err) }
   }
 }
 
