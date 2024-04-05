@@ -1,4 +1,4 @@
-const { Hostel, Room } = require('../models')
+const { Hostel, Room, Landlord } = require('../models')
 const { localFileHandler } = require('../helpers/file-helpers')
 
 const hostelController = {
@@ -25,6 +25,29 @@ const hostelController = {
     } catch (err) {
       next(err)
     }
+  },
+  getHostel: async (req, res, next) => {
+    try {
+      const { hostelId } = req.params
+      const hostel = await Hostel.findByPk(hostelId, {
+        attributes: ['id', 'name', 'address', 'description', 'landlordId'],
+        include: [{
+          model: Room,
+          where: { hostelId },
+          attributes: ['id', 'title', 'price', 'pictures']
+        }]
+      })
+      const landlord = await Landlord.findOne({
+        where: { id: hostel.landlordId },
+        attributes: ['name', 'avatar', 'introduction', 'phone', 'country']
+      })
+      if (!hostel) throw new Error('沒有這間旅館')
+
+      return res.status(200).json({
+        hostelData: hostel,
+        landlordData: landlord
+      })
+    } catch (err) { next(err) }
   },
   postHostel: async (req, res, next) => {
     try {
@@ -78,7 +101,8 @@ const hostelController = {
 
       if (!editHostel) throw new Error('沒有這間旅館')
       if (!landlordHostels.some(landlordHostel => Number(landlordHostel.id) === Number(hostelId))) {
-        throw new Error('你沒有瀏覽、編輯這個旅館的權限')}
+        throw new Error('你沒有瀏覽、編輯這個旅館的權限')
+      }
 
       await Hostel.update({
         picture: picturePath || editHostel.picture,

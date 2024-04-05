@@ -21,7 +21,7 @@ const roomController = {
       })
       if (!room) throw new Error('沒有這個房間')
 
-      res.status(200).json({
+      return res.status(200).json({
         roomData: room,
         landlordData: landlord
       })
