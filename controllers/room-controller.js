@@ -3,6 +3,30 @@ const { Room, Bed, Hostel, Landlord } = require('../models')
 const { roomsFileHandler } = require('../helpers/file-helpers')
 
 const roomController = {
+  getRoom: async (req, res, next) => {
+    try {
+      const { hostelId, roomId } = req.params
+      const room = await Room.findByPk(roomId, {
+        where: { hostelId },
+        attributes: ['title', 'type', 'description', 'price', 'facilities', 'pictures'],
+        include: [{
+          model: Hostel,
+          where: { id: hostelId },
+          attributes: ['id', 'name', 'address', 'landlordId']
+        }]
+      })
+      const landlord = await Landlord.findOne({
+        where: { id: room.Hostel.landlordId },
+        attributes: ['name', 'avatar', 'introduction', 'phone', 'country']
+      })
+      if (!room) throw new Error('沒有這個房間')
+
+      res.status(200).json({
+        roomData: room,
+        landlordData: landlord
+      })
+    } catch (err) { next(err) }
+  },
   postRoom: async (req, res, next) => {
     try {
       const { landlordId, hostelId } = req.params

@@ -3,8 +3,10 @@ const router = express.Router()
 
 const hostelController = require('../../controllers/hostel-controller')
 const bookingController = require('../../controllers/booking-controller')
+const roomController = require('../../controllers/room-controller')
 const { tenantAuth } = require('../../middleware/auth')
 
+router.get('/:hostelId/rooms/:roomId', tenantAuth, roomController.getRoom)
 router.post('/:hostelId/rooms/:roomId/booking', tenantAuth, bookingController.postBookingRoom)
 router.get('/:hostelId/rooms/:roomId/booking', tenantAuth, bookingController.getBookingRoom)
 router.get('/search', bookingController.searchRooms)
