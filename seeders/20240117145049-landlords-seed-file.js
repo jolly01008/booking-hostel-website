@@ -13,10 +13,10 @@ module.exports = {
       { type: queryInterface.sequelize.QueryTypes.SELECT })
 
     // 指定user2變成房東
-    await queryInterface.sequelize.query(`UPDATE Users SET role = 'landlord' WHERE id = ${userTwo[0].id}`)
+    await queryInterface.sequelize.query(`UPDATE Users SET role = 'landlord', currentRole = 'landlord' WHERE id = ${userTwo[0].id}`)
     await queryInterface.bulkInsert('Landlords', [{
       name: userTwo[0].name || faker.person.fullName(),
-      avatar: userTwo[0].avatar || 'https://imgur.com/a/RJmY7yQ',
+      avatar: 'https://imgur.com/a/Vlb1ogg',
       introduction: 'I am user2 landord',
       phone: userTwo[0].phone || faker.airline.flightNumber({ length: 10 }),
       country: userTwo[0].country || faker.location.country(),
@@ -28,10 +28,10 @@ module.exports = {
     // 2個租客變成房東
     await queryInterface.bulkInsert('Landlords',
       Array.from({ length: 2 }).map((v, index) => {
-        queryInterface.sequelize.query(`UPDATE Users SET role = 'landlord' WHERE id = ${shuffledUsers[index].id} `)
+        queryInterface.sequelize.query(`UPDATE Users SET role = 'landlord', currentRole = 'landlord' WHERE id = ${shuffledUsers[index].id} `)
         return {
           name: shuffledUsers[index].name || faker.person.fullName(),
-          avatar: shuffledUsers[index].avatar || 'https://imgur.com/a/RJmY7yQ',
+          avatar: 'https://imgur.com/a/Vlb1ogg',
           introduction: faker.lorem.words({ min: 8, max: 15 }),
           phone: shuffledUsers[index].phone || faker.airline.flightNumber({ length: 10 }),
           country: shuffledUsers[index].country || faker.location.country(),

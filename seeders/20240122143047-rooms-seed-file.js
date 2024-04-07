@@ -2,9 +2,10 @@
 const { faker } = require('@faker-js/faker')
 
 function getPictures () {
-  const singlePicture = 'https://loremflickr.com/320/240/hostel,room'
   const multiplePictures = []
   for (let i = 1; i <= 5; i++) {
+    const randomNum = Math.floor(Math.random() * 1000)
+    const singlePicture = `https://loremflickr.com/320/240/hostel,room?${randomNum}`
     multiplePictures.push(singlePicture)
   }
   return multiplePictures

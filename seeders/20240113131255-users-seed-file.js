@@ -14,6 +14,7 @@ module.exports = {
         phone: faker.airline.flightNumber({ length: 10 }),
         country: 'Taiwan',
         role: 'tenant',
+        current_role: 'tenant',
         created_at: new Date(),
         updated_at: new Date()
       },
@@ -26,6 +27,7 @@ module.exports = {
         phone: faker.airline.flightNumber({ length: 10 }),
         country: 'Taiwan',
         role: 'tenant',
+        current_role: 'tenant',
         created_at: new Date(),
         updated_at: new Date()
       }
@@ -40,6 +42,7 @@ module.exports = {
         phone: faker.airline.flightNumber({ length: 10 }),
         country: faker.location.country(),
         role: 'tenant',
+        current_role: 'tenant',
         created_at: new Date(),
         updated_at: new Date()
       }))

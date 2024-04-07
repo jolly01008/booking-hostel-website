@@ -131,7 +131,7 @@ const userController = {
         avatar: avatarPath || null,
         userId
       })
-      await currentUser.update({ role: 'landlord' })
+      await currentUser.update({ role: 'landlord', currentRole: 'landlord' })
       return res.status(200).json({
         status: 'success',
         message: '申請房東成功'
