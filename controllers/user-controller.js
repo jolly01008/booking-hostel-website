@@ -1,5 +1,5 @@
 const bcrypt = require('bcryptjs')
-const { User, Booking, Landlord } = require('../models')
+const { User, Booking, Landlord, Room } = require('../models')
 const jwt = require('jsonwebtoken')
 const authHelper = require('../helpers/auth-helpers')
 const { localFileHandler } = require('../helpers/file-helpers')
@@ -59,14 +59,22 @@ const userController = {
 
       const newBooking = bookingDateHelper.getNewBooking(bookings)
       const pastBooking = bookingDateHelper.getPastBooking(bookings)
-      // const pastBookings = bookings.filter(booking => {
-      //   return new Date(booking.bookingDate) < new Date()
-      // })
+
+      // 從各自新、舊訂單中，篩選出各自的房間資料
+      const rooms = await Room.findAll()
+      const newBookingRooms = newBooking.map(booking => {
+        const room = rooms.find(room => room.id === booking.roomId)
+        return { ...booking, room }
+      })
+      const pastBookingRooms = pastBooking.map(booking => {
+        const room = rooms.find(room => room.id === booking.roomId)
+        return { ...booking, room }
+      })
 
       if (userId !== currentUserId) { throw new Error('使用者非本人') }
       if (!currentUserId) { throw new Error('找不到該使用者') }
 
-      return res.status(200).json({ userData, newBooking, pastBooking })
+      return res.status(200).json({ userData, newBookingRooms, pastBookingRooms })
     } catch (err) {
       next(err)
     }
@@ -144,7 +152,7 @@ const userController = {
     try {
       const currentUserId = authHelper.getUser(req).id
       const currentUserData = await User.findByPk(currentUserId, {
-        attributes: ['id', 'currentRole'],
+        attributes: { exclude: ['password', 'createdAt', 'updatedAt'] },
         include: [{
           model: Landlord,
           attributes: ['id']
@@ -166,11 +174,14 @@ const userController = {
         data = currentUserData.Landlord.id
       }
       await currentUserData.update({ currentRole: newRole })
+      // 轉換後的使用者資料，重新簽發token給前端
+      const switchedToken = jwt.sign(currentUserData.toJSON(), process.env.JWT_SECRET, { expiresIn: '30d' }) // 簽發 JWT Token(期限30天)
 
       res.status(200).json({
         status: 'success',
         message,
-        data
+        data,
+        switchedToken
       })
     } catch (err) { next(err) }
   }

@@ -19,9 +19,7 @@ const hostelController = {
           message: '目前沒有任何旅館'
         })
       }
-      return res.status(200).json({
-        data: hostels
-      })
+      return res.status(200).json(hostels)
     } catch (err) {
       next(err)
     }
