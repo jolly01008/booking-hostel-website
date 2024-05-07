@@ -8,10 +8,10 @@ dayjs.extend(isBetween)
 const keywordFilter = async (keyword, next) => {
   try {
     const allRooms = await Room.findAll({
-      attributes: ['id', 'type', 'title', 'description', 'headcount'],
+      attributes: ['id', 'type', 'title', 'description', 'headcount', 'price', 'pictures'],
       include: [{
         model: Hostel,
-        attributes: ['name', 'address', 'description']
+        attributes: ['id', 'name', 'address', 'description']
       }]
     })
 
@@ -61,7 +61,6 @@ const dateFilter = async (checkin, checkout, adults, kids, next) => {
       dayjs(bookingData.bookingDate).isBetween(checkin, checkout))) {
         dateNotAllowResults.push(bookingData)
       }
-
       // 混合房
       const bookedPeople = Number(bookingData.numberOfAdults) + Math.floor(Number(bookingData.numberOfKids) / 2) // 資料庫內已登記預約要入住的人數
       // 混合房 若時間沒重疊

@@ -10,7 +10,7 @@ const hostelController = {
           model: Room,
           attributes: ['id', 'title', 'price']
         }],
-        order: [[{ model: Room }, 'price', 'ASC']]
+        order: [[{ model: Room }, 'price', 'DESC']]
       })
 
       if (!hostels.length) {
@@ -74,14 +74,14 @@ const hostelController = {
       const { landlordId } = req.params
       const landlordHostels = await Hostel.findAll({
         where: { landlordId },
-        attributes: ['name', 'address', 'description', 'picture']
+        attributes: ['id', 'name', 'address', 'description', 'picture']
       })
 
       if (!landlordHostels) throw new Error('尚未建立任何旅館')
 
-      return res.status(200).json({
-        data: landlordHostels
-      })
+      return res.status(200).json(
+        landlordHostels
+      )
     } catch (err) {
       next(err)
     }

@@ -15,8 +15,10 @@ const bookingController = {
       const today = dayjs(new Date()).format('YYYY-MM-DD')
       if (!keyword) throw new Error('請輸入想搜尋的地點')
       if (!checkin || !checkout) throw new Error('請輸入想入住的時間')
-      if (checkin > checkout || checkin < today || checkout < today) throw new Error('請輸入合理的時間')
-      if (!adults > 1) throw new Error('請確實填寫人數，至少須有一位青年或成人')
+      if (checkin > checkout) throw new Error('請輸入合理的時間，入住日期不可比退房日期還晚')
+      if (checkin === checkout) throw new Error('請輸入合理的時間，入住日期與退房日期，不可為同一天')
+      if (checkin < today || checkout < today) throw new Error('請輸入合理的時間，只能預約未來的時間')
+      if (adults < 1) throw new Error('請確實填寫人數，至少須有一位成人')
 
       // 關鍵字搜尋，所有房間==========================
 
@@ -46,10 +48,9 @@ const bookingController = {
       }
 
       return res.status(200).json({
-        status: 'success',
         searchData: req.query,
         message: `建議床位數至少: ${suggestBeds} 張床`,
-        data: results
+        results
       })
     } catch (err) {
       next(err)
@@ -57,13 +58,20 @@ const bookingController = {
   },
   getBookingRoom: async (req, res, next) => {
     try {
-      const { checkin, checkout } = req.body // 由前端從localStorage讀資料並傳送到後端
+      const today = dayjs(new Date()).format('YYYY-MM-DD')
+      // req.query 可以用于获取 URL 中查询字符串中的参数，但是它不仅限于查询字符串，也可以用于获取通过 GET 请求传递的参数
+      const { checkin, checkout } = req.query // 由前端從localStorage讀資料並傳送到後端
+
+      if (checkin > checkout) throw new Error('日期不合理，入住日期不可比退房日期還晚')
+      if (checkin === checkout) throw new Error('日期不合理，入住日期與退房日期，不可為同一天')
+      if (checkin < today || checkout < today) throw new Error('日期不合理，只能預約未來的時間')
+
       const { hostelId, roomId } = req.params
       const room = await Room.findByPk(roomId, {
-        attributes: ['title', 'type', 'description', 'price', 'headcount']
+        attributes: ['id', 'title', 'type', 'description', 'price', 'headcount', 'facilities']
       })
       const hostel = await Hostel.findByPk(hostelId, {
-        attributes: ['name', 'address', 'description'],
+        attributes: ['id', 'name', 'address', 'description', 'picture'],
         include: [{
           model: Landlord,
           attributes: ['name', 'phone', 'avatar']
@@ -71,15 +79,11 @@ const bookingController = {
       })
       const daysOfStay = dayjs(checkout).diff(dayjs(checkin), 'day') // 住宿天數
       const totalPrice = daysOfStay * room.price // 總價是 天數 * 一晚價格
-      const data = {
-        ...room.toJSON(),
-        ...hostel.toJSON(),
-        price: totalPrice
-      }
 
       return res.status(200).json({
-        status: 'success',
-        data
+        roomData: room,
+        hostelData: hostel,
+        totalPrice
       })
     } catch (err) {
       next(err)
@@ -88,11 +92,11 @@ const bookingController = {
   postBookingRoom: async (req, res, next) => {
     try {
       const currentUserId = authHelper.getUser(req).id
-      const { keyword, checkin, checkout, adults, kids } = req.body // 由前端從localStorage讀資料並傳送到後端
+      const { checkin, checkout, adults, kids } = req.body // 由前端從localStorage讀資料並傳送到後端
       const { tenantName, email, phone } = req.body
       const { roomId } = req.params
       const today = dayjs(new Date()).format('YYYY-MM-DD')
-      if (!keyword) throw new Error('想住宿的地點尚未填妥')
+      // if (!keyword) throw new Error('想住宿的地點尚未填妥')
       if (!checkin || !checkout) throw new Error('想住宿的日期尚未填妥')
       if (!adults || !kids) throw new Error('訂房人數尚未填妥')
       if (!tenantName || !email || !phone) throw new Error('訂房資料請填寫完整')

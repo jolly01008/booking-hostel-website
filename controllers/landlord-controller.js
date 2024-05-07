@@ -22,7 +22,12 @@ const landlordController = {
       const allBookings = (await Promise.all(allRooms.map(async (room) => {
         return await Booking.findAll({
           where: { roomId: room.id },
-          attributes: ['id', 'tenantName', 'bookingDate', 'checkoutDate', 'totalPrice']})
+          attributes: ['id', 'tenantName', 'bookingDate', 'checkoutDate', 'totalPrice'],
+          include: {
+            model: Room,
+            attributes:['title']
+          }
+        })
       }))).flat()
 
       const newBooking = bookingDateHelper.getNewBooking(allBookings)

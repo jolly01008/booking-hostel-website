@@ -123,7 +123,7 @@ const roomController = {
       })
       const allRooms = await Room.findAll({
         where: { hostelId },
-        attributes: ['title', 'price', 'pictures']
+        attributes: ['id', 'title', 'price', 'pictures']
       })
       if (!landlordData) throw new Error('找不到該房東資訊')
       if (!HostelData) throw new Error('找不到該旅館')
