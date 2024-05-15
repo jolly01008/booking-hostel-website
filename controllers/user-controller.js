@@ -79,6 +79,21 @@ const userController = {
       next(err)
     }
   },
+  getEditUser: async (req, res, next) => {
+    try {
+      const userId = req.params.id
+      const currentUserId = authHelper.getUser(req).id
+      if (Number(userId) !== Number(currentUserId)) throw new Error('使用者非本人')
+      if (!currentUserId) throw new Error('找不到該使用者')
+      const userData = await User.findByPk(currentUserId, {
+        attributes: { exclude: ['password', 'createdAt', 'updatedAt'] }
+      })
+
+      return res.status(200).json(userData)
+    } catch (err) {
+      next(err)
+    }
+  },
   editUser: async (req, res, next) => {
     try {
       const userId = req.params.id
@@ -139,10 +154,11 @@ const userController = {
         avatar: avatarPath || null,
         userId
       })
-      await currentUser.update({ role: 'landlord', currentRole: 'landlord' })
+      await currentUser.update({ role: 'landlord' })
       return res.status(200).json({
         status: 'success',
-        message: '申請房東成功'
+        message: '申請房東成功',
+        role: 'landlord'
       })
     } catch (err) {
       next(err)
@@ -167,7 +183,7 @@ const userController = {
       if (currentUserData.currentRole === 'landlord') {
         newRole = 'tenant'
         message = '切換成一般使用者房客，id為'
-        data = data = currentUserData.id
+        data = currentUserData.id
       } else if (currentUserData.currentRole === 'tenant') {
         newRole = 'landlord'
         message = '切換成房東，id為'

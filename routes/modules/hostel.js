@@ -11,7 +11,6 @@ router.post('/:hostelId/rooms/:roomId/booking', tenantAuth, bookingController.po
 router.get('/:hostelId/rooms/:roomId/booking', tenantAuth, bookingController.getBookingRoom)
 router.get('/:hostelId/rooms/:roomId', roomController.getRoom)
 router.get('/:hostelId', hostelController.getHostel)
-// router.get('/search', bookingController.searchRooms)
 router.get('/', hostelController.getHostels)
 
 module.exports = router
