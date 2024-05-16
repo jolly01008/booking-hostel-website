@@ -42,6 +42,17 @@ const landlordController = {
       next(err)
     }
   },
+  getEditLandlord: async (req, res, next) => {
+    try {
+      const landlordId = req.params.landlordId
+      const landlordData = await Landlord.findByPk(landlordId, {
+        attributes: ['id', 'name', 'avatar', 'introduction', 'phone', 'country']
+      })
+      return res.status(200).json(landlordData)
+    } catch (err) {
+      next(err)
+    }
+  },
   editLandlord: async (req, res, next) => {
     try {
       const { name, introduction, phone, country } = req.body

@@ -17,6 +17,7 @@ router.put('/:landlordId/hostels/:hostelId/edit', landlordAuth, upload.single('p
 router.get('/:landlordId/hostels/:hostelId/rooms', landlordAuth, roomController.getLandlordRooms)
 router.post('/:landlordId/hostels/create', landlordAuth, upload.single('picture'), hostelController.postHostel)
 router.get('/:landlordId/hostels', landlordAuth, hostelController.getLandlordHostels)
+router.get('/:landlordId/editLandlord', landlordAuth, landlordController.getEditLandlord)
 router.put('/:landlordId/editLandlord', landlordAuth, upload.single('avatar'), landlordController.editLandlord)
 router.get('/:landlordId', landlordAuth, landlordController.getLandlord)
 

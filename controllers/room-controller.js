@@ -182,7 +182,7 @@ const roomController = {
       const allRooms = await Room.findAll({ where: { hostelId }, attributes: ['id', 'title', 'type', 'description', 'price', 'facilities', 'pictures'] })
       const editRoom = await Room.findByPk(roomId, {
         where: { hostelId },
-        attributes: ['id', 'title', 'type', 'description', 'price', 'facilities', 'pictures']
+        attributes: ['id', 'title', 'type', 'description', 'price', 'facilities', 'pictures', 'headcount']
       })
       if (!landlordHostel) throw new Error('沒有這間旅館')
       if (!landlordHostels.some(landlordHostel => Number(landlordHostel.id) === Number(hostelId))) {
@@ -193,9 +193,7 @@ const roomController = {
         throw new Error('你沒有瀏覽、編輯這個房間的權限')
       }
 
-      res.status(200).json({
-        data: editRoom
-      })
+      res.status(200).json(editRoom)
     } catch (err) {
       next(err)
     }
@@ -226,9 +224,8 @@ const roomController = {
       const picturesPathArr = await roomsFileHandler(files) // 呼叫localFileHandler取得檔案路徑
       const picturesPathJson = JSON.stringify(picturesPathArr)
       if (!title || !type || !description || !price || !facilities || !headcount) throw new Error('房間資訊需要填寫完整')
-
       await Room.update({
-        pictures: picturesPathJson || editRoom.pictures,
+        pictures: (picturesPathJson !== '[]') ? picturesPathJson : editRoom.pictures,
         title: title || editRoom.title,
         type: type || editRoom.type,
         description: description || editRoom.description,
