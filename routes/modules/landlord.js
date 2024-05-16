@@ -13,6 +13,7 @@ router.put('/:landlordId/hostels/:hostelId/rooms/:roomId/edit', landlordAuth, up
 router.delete('/:landlordId/hostels/:hostelId/rooms/:roomId/delete', landlordAuth, roomController.deleteRoom)
 router.get('/:landlordId/hostels/:hostelId/rooms/:roomId', landlordAuth, roomController.getLandlordRoom)
 router.post('/:landlordId/hostels/:hostelId/createRoom', landlordAuth, upload.array('pictures', 6), roomController.postRoom)
+router.get('/:landlordId/hostels/:hostelId/edit', landlordAuth, hostelController.getEditLandlordHostel)
 router.put('/:landlordId/hostels/:hostelId/edit', landlordAuth, upload.single('picture'), hostelController.editHostel)
 router.get('/:landlordId/hostels/:hostelId/rooms', landlordAuth, roomController.getLandlordRooms)
 router.post('/:landlordId/hostels/create', landlordAuth, upload.single('picture'), hostelController.postHostel)

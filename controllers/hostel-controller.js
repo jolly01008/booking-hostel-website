@@ -86,6 +86,23 @@ const hostelController = {
       next(err)
     }
   },
+  // 取得房東要編輯單一旅館的旅館資料
+  getEditLandlordHostel: async (req, res, next) => {
+    try {
+      const { landlordId, hostelId } = req.params
+
+      const landlordHostels = await Hostel.findAll({ where: { landlordId }, attributes: ['id'] })
+      const editHostel = await Hostel.findByPk(hostelId, { attributes: ['id', 'name', 'address', 'description', 'picture'] })
+
+      if (!editHostel) throw new Error('沒有這間旅館')
+      if (!landlordHostels.some(landlordHostel => Number(landlordHostel.id) === Number(hostelId))) {
+        throw new Error('你沒有瀏覽、編輯這個旅館的權限')
+      }
+      return res.status(200).json(editHostel)
+    } catch (err) {
+      next(err)
+    }
+  },
   editHostel: async (req, res, next) => {
     try {
       const { landlordId, hostelId } = req.params
