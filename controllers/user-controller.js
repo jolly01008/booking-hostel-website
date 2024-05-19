@@ -2,7 +2,7 @@ const bcrypt = require('bcryptjs')
 const { User, Booking, Landlord, Room } = require('../models')
 const jwt = require('jsonwebtoken')
 const authHelper = require('../helpers/auth-helpers')
-const { localFileHandler } = require('../helpers/file-helpers')
+const { imgurFileHandler } = require('../helpers/file-helpers')
 const bookingDateHelper = require('../helpers/bookingDate-helpers')
 
 const userController = {
@@ -103,7 +103,7 @@ const userController = {
 
       const { email, name, introduction, phone, country } = req.body
       const { file } = req
-      const avatarPath = await localFileHandler(file)
+      const avatarPath = await imgurFileHandler(file)
       const beUsedEmail = await User.findOne({
         where: { email },
         attributes: ['id']
@@ -144,7 +144,7 @@ const userController = {
 
       const { name, introduction, phone, country } = req.body
       const { file } = req // multer在request處理好的file
-      const avatarPath = await localFileHandler(file) // 呼叫localFileHandler取得檔案路徑
+      const avatarPath = await imgurFileHandler(file) // 呼叫imgurFileHandler取得檔案路徑
       if (!name || !introduction || !phone || !country) throw new Error('欄位中不能空白，申請失敗')
       await Landlord.create({
         name,

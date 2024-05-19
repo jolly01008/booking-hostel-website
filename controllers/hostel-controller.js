@@ -1,5 +1,5 @@
 const { Hostel, Room, Landlord } = require('../models')
-const { localFileHandler } = require('../helpers/file-helpers')
+const { imgurFileHandler } = require('../helpers/file-helpers')
 
 const hostelController = {
   getHostels: async (req, res, next) => {
@@ -52,7 +52,7 @@ const hostelController = {
       const landlordId = req.params.landlordId
       const { name, address, description } = req.body
       const { file } = req // multer收到request 處理好的file
-      const picturePath = await localFileHandler(file) // 呼叫localFileHandler取得檔案路徑
+      const picturePath = await imgurFileHandler(file) // 呼叫imgurFileHandler取得檔案路徑
       if (!name || !address || !description) throw new Error('請填寫想創建旅館的名稱、地址、描述')
       await Hostel.create({
         name,
@@ -108,7 +108,7 @@ const hostelController = {
       const { landlordId, hostelId } = req.params
       const { name, address, description } = req.body
       const { file } = req
-      const picturePath = await localFileHandler(file)
+      const picturePath = await imgurFileHandler(file)
       if (!name || !address || !description) throw new Error('旅館資訊需要填寫完整')
 
       const landlordHostels = await Hostel.findAll({ where: { landlordId }, attributes: ['id'] })

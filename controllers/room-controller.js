@@ -1,6 +1,6 @@
 const { Room, Bed, Hostel, Landlord } = require('../models')
 
-const { roomsFileHandler } = require('../helpers/file-helpers')
+const { imgurFilesHandler } = require('../helpers/file-helpers')
 
 const roomController = {
   getRoom: async (req, res, next) => {
@@ -40,7 +40,7 @@ const roomController = {
         throw new Error('你沒有瀏覽、編輯這個旅館的權限')
       }
 
-      const picturesPathArr = await roomsFileHandler(files) // 呼叫localFileHandler取得檔案路徑
+      const picturesPathArr = await imgurFilesHandler(files) // 呼叫localFileHandler取得檔案路徑
       const picturesPathJson = JSON.stringify(picturesPathArr)
 
       if (!title || !type || !price || !headcount) throw new Error('房源名稱、類型、價格、人數為必填選項')
@@ -221,7 +221,7 @@ const roomController = {
 
       const { title, type, description, price, facilities, headcount } = req.body
       const { files } = req // multer收到request 處理好的files
-      const picturesPathArr = await roomsFileHandler(files) // 呼叫localFileHandler取得檔案路徑
+      const picturesPathArr = await imgurFilesHandler(files) // 呼叫localFileHandler取得檔案路徑
       const picturesPathJson = JSON.stringify(picturesPathArr)
       if (!title || !type || !description || !price || !facilities || !headcount) throw new Error('房間資訊需要填寫完整')
       await Room.update({

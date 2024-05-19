@@ -1,6 +1,6 @@
 const { Landlord, Hostel, Room, Booking } = require('../models')
 const bookingDateHelper = require('../helpers/bookingDate-helpers')
-const { localFileHandler } = require('../helpers/file-helpers')
+const { imgurFileHandler } = require('../helpers/file-helpers')
 
 const landlordController = {
   getLandlord: async (req, res, next) => {
@@ -57,7 +57,7 @@ const landlordController = {
     try {
       const { name, introduction, phone, country } = req.body
       const { file } = req
-      const avatarPath = await localFileHandler(file)
+      const avatarPath = await imgurFileHandler(file)
       const landlordData = await Landlord.findByPk(req.params.landlordId, {
         attributes: ['id', 'name', 'avatar', 'introduction', 'phone', 'country']
       })
