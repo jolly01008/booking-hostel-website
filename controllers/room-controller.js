@@ -225,7 +225,7 @@ const roomController = {
       const picturesPathJson = JSON.stringify(picturesPathArr)
       if (!title || !type || !description || !price || !facilities || !headcount) throw new Error('房間資訊需要填寫完整')
       await Room.update({
-        pictures: (picturesPathJson !== '[]') ? picturesPathJson : editRoom.pictures,
+        pictures: (picturesPathJson !== ('null' || '[]')) ? picturesPathJson : editRoom.pictures,
         title: title || editRoom.title,
         type: type || editRoom.type,
         description: description || editRoom.description,

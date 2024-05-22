@@ -9,11 +9,12 @@ module.exports = {
 
     landlords.forEach((landlord, i) => {
       Array.from({ length: 2 }).map((_, j) => {
+        const randomNum = Math.floor(Math.random() * 1000)
         return hostels.push({
           name: faker.company.name(),
           address: faker.location.streetAddress({ useFullAddress: true }),
           description: faker.lorem.paragraphs({ min: 2, max: 4 }),
-          picture: 'https://loremflickr.com/320/240/hostel,building',
+          picture: `https://loremflickr.com/320/240/hostel,building?${randomNum}.jpg`,
           landlord_id: landlord.id,
           created_at: new Date(),
           updated_at: new Date()

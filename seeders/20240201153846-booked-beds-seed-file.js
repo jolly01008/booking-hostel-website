@@ -49,12 +49,18 @@ module.exports = {
     const mixedDormBookings = getMixedDormBookings(allMixedDorms, allBookings)
     const perBedsOfBookings = getPerBedsOfBookings(allBookings, allBeds)
 
+    if (mixedDormBookings.length < 1) {
+      console.log('booking資料表所生成的訂單種子資料，恰巧沒有"混合房型"，故booked_beds不會有資料')
+      return
+    } // 如果沒有任何一筆 混合房的訂單，那就直接return
+
     const bookedBeds = []
     mixedDormBookings.forEach(mixedDormBooking => {
       // 每一筆混合房訂單的room_id 與 可選用床位的room_id做比對，依照room_id去分配床位
       // 用find返回第一個符合條件的元素。因為知道是哪個room_id一次就好(也剛好取得該混合房間第1張床的id)
       const bedOfBooking = perBedsOfBookings.find(bed => {
-        return mixedDormBooking.room_id === bed.room_id }) // 該筆訂單，配出一張這個room_id的床
+        return mixedDormBooking.room_id === bed.room_id
+      }) // 該筆訂單，配出一張這個room_id的床
 
       const numberOfAdults = mixedDormBooking.number_of_adults
       // 1個大人就分一個床位，2個大人就給兩個床位
