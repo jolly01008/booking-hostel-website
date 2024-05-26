@@ -11,7 +11,6 @@ module.exports = {
       // 每一間混合房，都給5張尚未被預訂的床
       Array.from({ length: 5 }).map((_, j) => {
         return mixedDormAllBeds.push({
-          reserved: 0,
           room_id: mixedDorm.id,
           created_at: new Date(),
           updated_at: new Date()

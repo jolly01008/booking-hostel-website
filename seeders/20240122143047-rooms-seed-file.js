@@ -11,15 +11,6 @@ function getPictures () {
   return JSON.stringify(multiplePictures)
 }
 
-// 不同的房型(private_room、mixed_dorm)，各自有不同的"訂房狀態"。所以帶入roomType參數，可去做判斷。
-function getReservationStatus (roomType) {
-  const privateRoomStatus = 'rooms_available' // 獨立套房所擁有的訂房狀態
-  const mixedDormStatus = 'beds_available' // 混合房所擁有的訂房狀態
-  if (roomType === 'private_room') {
-    return privateRoomStatus
-  } else { return mixedDormStatus }
-}
-
 module.exports = {
   up: async (queryInterface, Sequelize) => {
     const hostels = await queryInterface.sequelize.query('SELECT id FROM Hostels', { type: queryInterface.sequelize.QueryTypes.SELECT })
@@ -37,7 +28,6 @@ module.exports = {
           price: faker.commerce.price({ min: 1500, max: 10000, dec: 0 }),
           facilities: faker.helpers.arrayElements(allFacilities, { min: 1, max: 6 }).join(),
           pictures: getPictures(),
-          reservation_status: getReservationStatus('private_room'), // reservation_status會因為房型而有所不同
           hostel_id: hostel.id,
           headcount: 2,
           created_at: new Date(),
@@ -54,7 +44,6 @@ module.exports = {
           price: faker.commerce.price({ min: 1500, max: 10000, dec: 0 }),
           facilities: faker.helpers.arrayElements(allFacilities, { min: 1, max: 6 }).join(),
           pictures: getPictures(),
-          reservation_status: getReservationStatus('private_room'), // reservation_status會因為房型而有所不同
           hostel_id: hostel.id,
           headcount: 3,
           created_at: new Date(),
@@ -70,7 +59,6 @@ module.exports = {
         price: faker.commerce.price({ min: 500, max: 2500, dec: 0 }),
         facilities: faker.helpers.arrayElements(allFacilities, { min: 1, max: 6 }).join(),
         pictures: getPictures(),
-        reservation_status: getReservationStatus('mixed_dorm'), // reservation_status會因為房型而有所不同
         hostel_id: hostel.id,
         headcount: 5,
         created_at: new Date(),

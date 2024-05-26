@@ -70,11 +70,30 @@ module.exports = {
     const tenantUsers = await queryInterface.sequelize.query(' SELECT id, name, email, phone FROM Users WHERE role = \'tenant\'',
       { type: queryInterface.sequelize.QueryTypes.SELECT })
     const rooms = await queryInterface.sequelize.query(' SELECT id, price FROM Rooms ', { type: queryInterface.sequelize.QueryTypes.SELECT })
-    const privateRooms = await queryInterface.sequelize.query(' SELECT id FROM hostel.rooms WHERE type = \'private_room\' ',
+    const privateRooms = await queryInterface.sequelize.query(' SELECT id FROM Rooms WHERE type = \'private_room\' ',
+      { type: queryInterface.sequelize.QueryTypes.SELECT })
+    const mixedDorms = await queryInterface.sequelize.query(' SELECT id FROM Rooms WHERE type = \'mixed_dorm\' ',
       { type: queryInterface.sequelize.QueryTypes.SELECT })
 
     const futureBookings = []
     const pastBookings = []
+
+    // 指定第一個使用者，有一筆未來的"混合房"間預約
+    const futureDateTz = getRandomFutureTime()
+    futureBookings.push({
+      tenant_name: tenantUsers[0].name,
+      email: tenantUsers[0].email,
+      phone: tenantUsers[0].phone,
+      booking_date: futureDateTz,
+      checkout_date: getCheckoutFutureTime(futureDateTz),
+      number_of_adults: 2,
+      number_of_kids: 3,
+      total_price: '4000',
+      user_id: tenantUsers[0].id,
+      room_id: mixedDorms[0].id,
+      created_at: new Date(),
+      updated_at: new Date()
+    })
     // 每個使用者有兩筆未來的房間預約
     tenantUsers.forEach((tenantUser, i) => {
       Array.from({ length: 2 }).map((_, i) => {

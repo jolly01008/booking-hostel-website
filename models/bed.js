@@ -10,7 +10,6 @@ module.exports = (sequelize, DataTypes) => {
     }
   };
   Bed.init({
-    reserved: DataTypes.BOOLEAN,
     roomId: DataTypes.INTEGER
   }, {
     sequelize,

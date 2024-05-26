@@ -39,7 +39,7 @@ function getPerBedsOfBookings (allBookings, allBeds) {
 module.exports = {
   up: async (queryInterface, Sequelize) => {
     // 所有訂單資料
-    const allBookings = await queryInterface.sequelize.query(' SELECT id, room_id, number_of_adults FROM Bookings ', { type: queryInterface.sequelize.QueryTypes.SELECT })
+    const allBookings = await queryInterface.sequelize.query(' SELECT id, room_id, number_of_adults, number_of_kids FROM Bookings ', { type: queryInterface.sequelize.QueryTypes.SELECT })
     // 所有房型為mixed_dorm的資料
     const allMixedDorms = await queryInterface.sequelize.query(' SELECT id FROM Rooms WHERE type = \'mixed_dorm\' ',
       { type: queryInterface.sequelize.QueryTypes.SELECT })
@@ -56,36 +56,23 @@ module.exports = {
 
     const bookedBeds = []
     mixedDormBookings.forEach(mixedDormBooking => {
-      // 每一筆混合房訂單的room_id 與 可選用床位的room_id做比對，依照room_id去分配床位
-      // 用find返回第一個符合條件的元素。因為知道是哪個room_id一次就好(也剛好取得該混合房間第1張床的id)
-      const bedOfBooking = perBedsOfBookings.find(bed => {
-        return mixedDormBooking.room_id === bed.room_id
-      }) // 該筆訂單，配出一張這個room_id的床
-
-      const numberOfAdults = mixedDormBooking.number_of_adults
-      // 1個大人就分一個床位，2個大人就給兩個床位
-      if (numberOfAdults === 1) {
-        bookedBeds.push({
-          booking_id: mixedDormBooking.id,
-          bed_id: bedOfBooking.id,
-          created_at: new Date(),
-          updated_at: new Date()
-        })
-      } else if (numberOfAdults === 2) {
-        bookedBeds.push({
-          booking_id: mixedDormBooking.id,
-          bed_id: bedOfBooking.id,
-          created_at: new Date(),
-          updated_at: new Date()
-        })
-        bookedBeds.push({
-          booking_id: mixedDormBooking.id,
-          bed_id: bedOfBooking.id + 1, // 再 +1，就可拿到第2張床的id
-          created_at: new Date(),
-          updated_at: new Date()
-        })
+      const bedsArray = []
+      const availableBeds = perBedsOfBookings.filter(bed => bed.room_id === mixedDormBooking.room_id) // 取得該筆訂單可訂的所有床位
+      const numberOfAdults = Number(mixedDormBooking.number_of_adults)
+      const numberOfKids = Number(mixedDormBooking.number_of_kids)
+      const needBeds = numberOfAdults + Math.floor(numberOfKids / 2)
+      for (let i = 0; i < needBeds; i++) {
+        bedsArray.push(availableBeds[i].id.toString())
       }
+
+      bookedBeds.push({
+        booking_id: mixedDormBooking.id,
+        bed_records: JSON.stringify(bedsArray),
+        created_at: new Date(),
+        updated_at: new Date()
+      })
     })
+
     await queryInterface.bulkInsert('Booked_beds', bookedBeds)
   },
 

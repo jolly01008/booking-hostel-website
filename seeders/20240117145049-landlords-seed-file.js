@@ -7,13 +7,11 @@ module.exports = {
       'SELECT id, name, avatar, phone, country FROM Users WHERE email NOT IN (\'user1@example.com\', \'user2@example.com\')',
       { type: queryInterface.sequelize.QueryTypes.SELECT })
     const shuffledUsers = users.sort(() => 0.5 - Math.random()) // 隨機排序使用者
-
     const userTwo = await queryInterface.sequelize.query(
       'SELECT id, name, avatar, phone, country FROM Users WHERE email = \'user2@example.com\'',
       { type: queryInterface.sequelize.QueryTypes.SELECT })
-
     // 指定user2變成房東
-    await queryInterface.sequelize.query(`UPDATE Users SET role = 'landlord', WHERE id = ${userTwo[0].id}`)
+    await queryInterface.sequelize.query(`UPDATE Users SET role = 'landlord' WHERE id = ${userTwo[0].id}`)
     await queryInterface.bulkInsert('Landlords', [{
       name: userTwo[0].name || faker.person.fullName(),
       avatar: 'https://i.imgur.com/rUVljex.png',
@@ -24,11 +22,10 @@ module.exports = {
       created_at: new Date(),
       updated_at: new Date()
     }])
-
     // 2個租客變成房東
     await queryInterface.bulkInsert('Landlords',
       Array.from({ length: 2 }).map((v, index) => {
-        queryInterface.sequelize.query(`UPDATE Users SET role = 'landlord', WHERE id = ${shuffledUsers[index].id} `)
+        queryInterface.sequelize.query(`UPDATE Users SET role = 'landlord' WHERE id = ${shuffledUsers[index].id} `)
         return {
           name: shuffledUsers[index].name || faker.person.fullName(),
           avatar: 'https://i.imgur.com/rUVljex.png',
