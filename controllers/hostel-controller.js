@@ -10,7 +10,7 @@ const hostelController = {
           model: Room,
           attributes: ['id', 'title', 'price']
         }],
-        order: [[{ model: Room }, 'price', 'DESC']]
+        order: [[{ model: Room }, 'price', 'ASC']]
       })
 
       if (!hostels.length) {

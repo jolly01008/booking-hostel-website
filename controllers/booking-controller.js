@@ -22,7 +22,7 @@ const bookingController = {
 
       // 關鍵字搜尋，所有房間==========================
 
-      const keywordResults = await filterHelper.keywordFilter(keyword, next)
+      const keywordResults = await filterHelper.keywordFilter(keyword, adults, kids, next)
 
       if (keywordResults.length === 0) {
         return res.status(200).json({
@@ -39,7 +39,6 @@ const bookingController = {
       //  数组中找不到任何一个元素的 id 属性與當前 keywordResult 数组中的元素的 id 属性相同，那么 ! 反向變成 true，就會保留在results的結果
       const results = keywordResults.filter(keywordResult =>
         !dateNotAllowResults.some(dateNotAllowResult => dateNotAllowResult.Room.id === keywordResult.id))
-
       if (results.length === 0) {
         return res.status(200).json({
           status: 'success',
@@ -101,16 +100,6 @@ const bookingController = {
       if (!tenantName || !email || !phone) throw new Error('訂房資料請填寫完整')
       if (checkin > checkout || checkin < today || checkout < today) throw new Error('請輸入合理的時間')
       if (!adults > 1) throw new Error('請確實填寫人數，至少須有一位青年或成人')
-
-      // const dateNotAllowResults = await filterHelper.dateFilter(checkin, checkout, adults, kids, next)
-      // // 這些輸入的條件，若 dateNotAllowResults 有一筆資料，代表該期間已無可預約的房間
-      // console.log('===============dateNotAllowResults:', dateNotAllowResults)
-      // if (dateNotAllowResults.length > 0) {
-      //   return res.status(200).json({
-      //     status: 'success',
-      //     message: '這段期間已經沒有能滿足該條件、可預約的房間'
-      //   })
-      // }
 
       const room = await Room.findByPk(roomId, {
         attributes: ['id', 'price', 'type'],
