@@ -109,7 +109,13 @@ const bookingController = {
         }
       })
       const daysOfStay = dayjs(checkout).diff(dayjs(checkin), 'day') // 住宿天數
-      const totalPrice = daysOfStay * room.price // 總價是 天數 * 一晚價格
+      let totalPrice // 聲明變量totalPrice
+      if (room.type === 'private_room') {
+        totalPrice = daysOfStay * room.price // 總價是 天數 * 一晚價格
+      } else if (room.type === 'mixed_dorm') {
+        const countOfBeds = Number(adults) + Math.floor(Number(kids) / 2)
+        totalPrice = daysOfStay * room.price * countOfBeds
+      } else { throw new Error('總價計算出現問題') }
 
       // 確認相同條件是否已預約過
       const alreadyBooked = await Booking.findOne({
@@ -130,8 +136,9 @@ const bookingController = {
 
       if (room.type === 'private_room') {
         const dateNotAllowResults = await filterHelper.dateFilter(checkin, checkout, adults, kids, next)
-        // 這些輸入的條件，若 dateNotAllowResults 有一筆資料，代表該期間已無可預約的房間
-        if (dateNotAllowResults.length > 0) {
+        // 這些輸入的條件，若 dateNotAllowResults 有資料，且這筆資料內有與想預約的房間room.id 重疊，就無法預約
+        if (dateNotAllowResults.length > 0 &&
+            dateNotAllowResults.some(notAllowRoom => notAllowRoom.id === room.id)) {
           return res.status(200).json({
             status: 'success',
             message: '這段期間已經沒有能滿足該條件、可預約的房間'
@@ -159,7 +166,7 @@ const bookingController = {
         if (result === '這個期間，該房間的床位不足!') {
           res.json({
             status: 'warning',
-            message: '這個期間，該房間的床位不足!',
+            message: '這個期間，該房間的床位不足!'
           })
         }
         if (result === '床位還足夠') {
