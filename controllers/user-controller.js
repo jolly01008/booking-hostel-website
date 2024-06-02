@@ -21,7 +21,7 @@ const userController = {
         email,
         password: hash,
         role: 'tenant',
-        current_role: 'tenant',
+        currentRole: 'tenant',
         avatar: 'https://i.imgur.com/UuaL1Pu.png'
       })
       const userData = newUser.toJSON()
@@ -58,8 +58,8 @@ const userController = {
         where: { userId: currentUserId }
       })
 
-      const newBooking = bookingDateHelper.getNewBooking(bookings, next)
-      const pastBooking = bookingDateHelper.getPastBooking(bookings, next)
+      const newBooking = await bookingDateHelper.getNewBooking(bookings, next)
+      const pastBooking = await bookingDateHelper.getPastBooking(bookings, next)
 
       // 從各自新、舊訂單中，篩選出各自的房間資料
       const rooms = await Room.findAll()

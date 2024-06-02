@@ -1,10 +1,11 @@
 const dayjs = require('dayjs')
 const { bookedBed } = require('../models')
 
-const getNewBooking = (allBookings, next) => {
+const getNewBooking = async (allBookings, next) => {
   try {
     const newBooking = []
-    allBookings.forEach(async (booking) => {
+    // forEach不關心内部的異步操作，不會等待異步操作完成。所以用for...of更為適合
+    for (const booking of allBookings) {
       const beds = await bookedBed.findOne({
         where: { bookingId: booking.id },
         attributes: ['id', 'bedRecords']
@@ -13,22 +14,23 @@ const getNewBooking = (allBookings, next) => {
       const bookingDate = dayjs(booking.bookingDate).format('YYYY-MM-DD')
       const checkoutDate = dayjs(booking.checkoutDate).format('YYYY-MM-DD')
       if ((bookingDate >= today || checkoutDate >= today) && beds) {
-      // 是未來的時間，且有 beds 的資料(混合房)，就得把bedRecords也推進newBooking
+        // 是未來的時間，且有 beds 的資料(混合房)，就得把bedRecords也推進newBooking
         const bedRecords = JSON.parse(beds.bedRecords) // 該筆booking的所有床位編號
         newBooking.push({ ...booking.toJSON(), bookingDate, checkoutDate, bedRecords })
       } else if (bookingDate >= today || checkoutDate >= today) {
       // 是未來時間，但沒有 beds資料 ( 獨立房間 )
         newBooking.push({ ...booking.toJSON(), bookingDate, checkoutDate })
       }
-    })
+    }
     return newBooking
   } catch (err) { next(err) }
 }
 
-const getPastBooking = (allBookings, next) => {
+const getPastBooking = async (allBookings, next) => {
   try {
     const pastBooking = []
-    allBookings.forEach(async (booking) => {
+    // forEach不關心内部的異步操作，不會等待異步操作完成。所以用for...of更為適合
+    for (const booking of allBookings) {
       const beds = await bookedBed.findOne({
         where: { bookingId: booking.id },
         attributes: ['id', 'bedRecords']
@@ -44,7 +46,7 @@ const getPastBooking = (allBookings, next) => {
       // 是過去時間，但沒有 beds資料 ( 獨立房間 )
         pastBooking.push({ ...booking.toJSON(), bookingDate, checkoutDate })
       }
-    })
+    }
     return pastBooking
   } catch (err) { next(err) }
 }

@@ -29,9 +29,8 @@ const landlordController = {
           }
         })
       }))).flat()
-
-      const newBooking = bookingDateHelper.getNewBooking(allBookings)
-      const pastBooking = bookingDateHelper.getPastBooking(allBookings)
+      const newBooking = await bookingDateHelper.getNewBooking(allBookings, next)
+      const pastBooking = await bookingDateHelper.getPastBooking(allBookings, next)
 
       return res.status(200).json({
         landlordData,
