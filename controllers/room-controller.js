@@ -8,7 +8,7 @@ const roomController = {
       const { hostelId, roomId } = req.params
       const room = await Room.findByPk(roomId, {
         where: { hostelId },
-        attributes: ['title', 'type', 'description', 'price', 'facilities', 'pictures'],
+        attributes: ['title', 'type', 'description', 'price', 'facilities', 'pictures', 'headcount'],
         include: [{
           model: Hostel,
           where: { id: hostelId },
@@ -156,7 +156,7 @@ const roomController = {
       }
       const room = await Room.findByPk(roomId, {
         where: { hostelId },
-        attributes: ['title', 'type', 'description', 'price', 'facilities', 'pictures'],
+        attributes: ['title', 'type', 'description', 'price', 'facilities', 'pictures', 'headcount'],
         include: [{
           model: Hostel,
           where: { landlordId, id: hostelId },
