@@ -7,7 +7,7 @@ const path = require('path')
 const methodOverride = require('method-override')
 const passport = require('passport')
 const app = express()
-const PORT = process.env.PORT || 3001
+const PORT = process.env.PORT || 3001 || 3000
 
 const router = require('./routes')
 const cors = require('cors')
